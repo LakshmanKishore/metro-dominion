@@ -24,7 +24,7 @@
 body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--color-bg);
+  background: radial-gradient(circle at center, #2c3e50 0%, #1a1a2e 100%);
   color: var(--color-text-light);
   overflow: hidden; /* Prevent scrolling, full app feel */
   touch-action: none;
@@ -37,55 +37,237 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 10px;
+}
+
+/* Top Bar */
+.top-bar {
+  width: 90%;
+  background: rgba(15, 52, 96, 0.9);
+  padding: 8px 15px;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 50;
+  backdrop-filter: blur(5px);
+}
+
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.turn-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid white;
 }
 
 /* Board Grid */
 .board-container {
-  width: 95vmin;
-  height: 95vmin;
+  width: 100vmin;
+  height: 100vmin;
+  /* Maximize but leave space for top bar and hud if they take space */
+  /* Actually with vmin it might overlap. Let's adjust slightly or rely on flex to shrink if needed */
+  flex-shrink: 1;
+  aspect-ratio: 1/1; /* Ensure square */
   display: grid;
   grid-template-columns: repeat(11, 1fr);
   grid-template-rows: repeat(11, 1fr);
-  gap: 2px;
+  gap: 0;
   background-color: var(--color-board-bg);
-  border-radius: 20px;
-  padding: 5px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  /* border-radius removed to fill screen exactly if needed */
+  padding: 0;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
   position: relative;
+  overflow: hidden; /* Prevent spill */
 }
 
 .center-area {
   grid-column: 2 / span 9;
   grid-row: 2 / span 9;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  background-color: rgba(22, 33, 62, 0.95);
+  border-radius: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 10px;
   text-align: center;
+  z-index: 5;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
 /* Tile Styles */
 .tile {
   background-color: var(--color-tile-bg);
-  border: 1px solid var(--color-tile-border);
+  border: 1px solid rgba(0, 0, 0, 0.15); /* Thicker border for grid definition */
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   color: var(--color-text);
   overflow: hidden;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s;
+}
+
+/* Property Card Modal */
+.property-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.property-card {
+  width: 70%;
+  max-width: 300px;
+  background: white;
+  border: 4px solid #333;
+  border-radius: 0; /* Classic look */
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  color: #333;
+}
+
+.card-header {
+  padding: 15px 5px;
+  text-align: center;
+  border-bottom: 2px solid #333;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.card-title-small {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+  opacity: 0.9;
+}
+
+.card-name {
+  font-size: 1.4rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.card-body {
+  padding: 15px;
+  background: white;
+  font-size: 0.9rem;
+}
+
+.rent-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.rent-row:first-child {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.divider {
+  height: 1px;
+  background: #ccc;
+  margin: 10px 0;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+
+.card-actions {
+  padding: 15px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  background: #eee;
+  border-top: 1px solid #ccc;
+}
+
+.card-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.card-btn.buy {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.card-btn.pass {
+  background-color: #555;
+  color: white;
+}
+
+.card-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-text {
+  text-align: center;
+  color: red;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scaleUp {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 .tile.corner {
   justify-content: center;
   font-weight: bold;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 2px;
+  word-break: break-word;
 }
 
 .tile-header {
@@ -96,27 +278,17 @@ body {
 }
 
 .tile-name {
-  padding: 2px;
+  padding: 1px;
   text-align: center;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .tile-price {
-  font-size: 0.7em;
-  margin-bottom: 2px;
-}
-
-/* Player Tokens */
-.player-token {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  border: 2px solid white;
-  position: absolute;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  transition: all 0.5s ease-in-out;
-  z-index: 10;
+  font-size: 0.8em;
+  margin-bottom: 1px;
+  font-weight: bold;
+  opacity: 0.7;
 }
 
 /* HUD */
@@ -173,13 +345,134 @@ body {
   font-size: 0.9rem;
 }
 
-.log-box {
-  max-height: 60px;
-  overflow-y: auto;
+/* Animations */
+@keyframes jump-arc {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.2);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translate(1px, 1px) rotate(0deg);
+  }
+  10% {
+    transform: translate(-1px, -2px) rotate(-1deg);
+  }
+  20% {
+    transform: translate(-3px, 0px) rotate(1deg);
+  }
+  30% {
+    transform: translate(3px, 2px) rotate(0deg);
+  }
+  40% {
+    transform: translate(1px, -1px) rotate(1deg);
+  }
+  50% {
+    transform: translate(-1px, 2px) rotate(-1deg);
+  }
+  60% {
+    transform: translate(-3px, 1px) rotate(0deg);
+  }
+  70% {
+    transform: translate(3px, 1px) rotate(-1deg);
+  }
+  80% {
+    transform: translate(-1px, -1px) rotate(1deg);
+  }
+  90% {
+    transform: translate(1px, 2px) rotate(0deg);
+  }
+  100% {
+    transform: translate(1px, -2px) rotate(-1deg);
+  }
+}
+
+/* Dice */
+.dice-container {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.dice-container.rolling .die {
+  animation: shake 0.5s infinite;
+  background-color: #ddd;
+}
+
+.die {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  color: #333;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 4px 0 #bbb;
+  border: 1px solid #999;
+}
+
+/* Player Tokens */
+.player-token {
+  width: 18px; /* Slightly bigger */
+  height: 18px;
+  border-radius: 50%;
+  position: relative;
+  /* box-shadow set inline */
+  /* transition handles position slide */
+  transition:
+    grid-column 0.5s ease-in-out,
+    grid-row 0.5s ease-in-out,
+    transform 0.3s;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-token.jumping {
+  animation: jump-arc 0.5s ease-in-out;
+}
+
+/* Money Float */
+.money-float {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
   font-size: 0.8rem;
-  width: 150px;
-  text-align: left;
-  opacity: 0.8;
+  white-space: nowrap;
+  animation: floatUp 1.5s forwards;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.money-float.pos {
+  color: #4cd137;
+}
+.money-float.neg {
+  color: #e94560;
 }
 
 /* Owner Marker */

@@ -137,6 +137,51 @@ Rune.initLogic({
       currentTileIndex: null,
     }
   },
+  events: {
+    playerJoined: (playerId, { game }) => {
+      if (!game.players[playerId]) {
+        game.players[playerId] = {
+          id: playerId,
+          money: START_MONEY,
+          position: 0,
+          color: game.playerIds.length,
+          isJailed: false,
+          jailTurns: 0,
+          isBankrupt: false,
+        }
+        game.playerIds.push(playerId)
+      }
+    },
+    playerLeft: (playerId, { game }) => {
+      const player = game.players[playerId]
+      if (player) {
+        player.isBankrupt = true
+        game.board.forEach((t) => {
+          if (t.ownerId === playerId) {
+            t.ownerId = null
+            t.level = 0
+          }
+        })
+
+        if (game.turnPlayerId === playerId) {
+          let nextPlayer = getNextPlayer(playerId, game.playerIds)
+          let loops = 0
+          while (
+            game.players[nextPlayer].isBankrupt &&
+            loops < game.playerIds.length
+          ) {
+            nextPlayer = getNextPlayer(nextPlayer, game.playerIds)
+            loops++
+          }
+          game.turnPlayerId = nextPlayer
+          game.phase = "ROLL"
+          game.dice = [0, 0]
+          game.currentTileIndex = null
+          game.lastActionText = `Player Left. Next: Player ${game.playerIds.indexOf(nextPlayer)}`
+        }
+      }
+    },
+  },
   actions: {
     rollDice: (_, { game, playerId }) => {
       if (game.phase !== "ROLL") throw Rune.invalidAction()
@@ -325,24 +370,24 @@ Rune.initLogic({
       game.dice = [0, 0]
       game.currentTileIndex = null
     },
-        upgradeProperty: (_, { game, playerId }) => {
-            if (game.turnPlayerId !== playerId) throw Rune.invalidAction();
-            
-            const player = game.players[playerId];
-            const tileIndex = player.position;
-            const tileState = game.board[tileIndex];
-            const tileConfig = BOARD_CONFIG[tileIndex];
-    
-            if (tileState.ownerId !== playerId) throw Rune.invalidAction();
-            if (tileConfig.type !== "ZONE") throw Rune.invalidAction();
-            if (tileState.level >= 4) throw Rune.invalidAction();
-    
-            const upgradeCost = tileConfig.price || 100; 
-            if (player.money < upgradeCost) throw Rune.invalidAction();
-    
-            player.money -= upgradeCost;
-            tileState.level++;
-            game.lastActionText = `Upgraded ${tileConfig.name} to Level ${tileState.level}`;
-        },
+    upgradeProperty: (_, { game, playerId }) => {
+      if (game.turnPlayerId !== playerId) throw Rune.invalidAction()
+
+      const player = game.players[playerId]
+      const tileIndex = player.position
+      const tileState = game.board[tileIndex]
+      const tileConfig = BOARD_CONFIG[tileIndex]
+
+      if (tileState.ownerId !== playerId) throw Rune.invalidAction()
+      if (tileConfig.type !== "ZONE") throw Rune.invalidAction()
+      if (tileState.level >= 4) throw Rune.invalidAction()
+
+      const upgradeCost = tileConfig.price || 100
+      if (player.money < upgradeCost) throw Rune.invalidAction()
+
+      player.money -= upgradeCost
+      tileState.level++
+      game.lastActionText = `Upgraded ${tileConfig.name} to Level ${tileState.level}`
+    },
   },
 })

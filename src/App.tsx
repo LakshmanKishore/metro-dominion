@@ -3,6 +3,7 @@ import { PlayerId } from "rune-sdk"
 import { GameState } from "./logic"
 import { Board } from "./components/Board"
 import { HUD } from "./components/HUD"
+import { TopBar } from "./components/TopBar"
 import "./styles.css"
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
 
   return (
     <>
+      <TopBar turnPlayerId={game.turnPlayerId} gamePlayerIds={game.playerIds} />
       <Board game={game} yourPlayerId={yourPlayerId} />
       <HUD game={game} yourPlayerId={yourPlayerId} />
     </>

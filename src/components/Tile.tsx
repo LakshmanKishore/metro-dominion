@@ -1,34 +1,16 @@
 import { TileConfig } from "../boardData"
-import { TileState, Player } from "../logic"
+import { TileState } from "../logic"
 import { PlayerId } from "rune-sdk"
+import { getGridPos } from "../utils/grid"
 
 interface TileProps {
   config: TileConfig
   state: TileState
-  players: Player[]
   index: number
   playerColors: Record<PlayerId, string>
 }
 
-export function Tile({
-  config,
-  state,
-  players,
-  index,
-  playerColors,
-}: TileProps) {
-  const getGridPos = (i: number) => {
-    if (i === 0) return { col: 11, row: 11 }
-    if (i < 10) return { col: 11 - i, row: 11 }
-    if (i === 10) return { col: 1, row: 11 }
-    if (i < 20) return { col: 1, row: 11 - (i - 10) }
-    if (i === 20) return { col: 1, row: 1 }
-    if (i < 30) return { col: 1 + (i - 20), row: 1 }
-    if (i === 30) return { col: 11, row: 1 }
-    if (i < 40) return { col: 11, row: 1 + (i - 30) }
-    return { col: 1, row: 1 }
-  }
-
+export function Tile({ config, state, index, playerColors }: TileProps) {
   const { col, row } = getGridPos(index)
 
   const style: React.CSSProperties = {
@@ -42,7 +24,7 @@ export function Tile({
 
   // Determine border for ownership
   const ownerColor = state.ownerId ? playerColors[state.ownerId] : null
-  const borderStyle = ownerColor ? { border: `2px solid ${ownerColor}` } : {}
+  const borderStyle = ownerColor ? { border: `3px solid ${ownerColor}` } : {}
 
   return (
     <div
@@ -65,31 +47,21 @@ export function Tile({
         ></div>
       )}
 
-      {/* Players on this tile */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "2px",
-          display: "flex",
-          gap: "2px",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          width: "100%",
-        }}
-      >
-        {players.map((p) => (
-          <div
-            key={p.id}
-            className="player-token"
-            style={{
-              backgroundColor: playerColors[p.id],
-              position: "static",
-              width: "10px",
-              height: "10px",
-            }}
-          ></div>
-        ))}
-      </div>
+      {/* Upgrades */}
+      {state.level > 0 && (
+        <div
+          style={{
+            position: "absolute",
+            top: "2px",
+            right: "2px",
+            fontSize: "0.6rem",
+            fontWeight: "bold",
+            color: "var(--color-accent)",
+          }}
+        >
+          {"★".repeat(state.level)}
+        </div>
+      )}
     </div>
   )
 }
